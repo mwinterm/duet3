@@ -34,6 +34,25 @@ global vfdState = "stopped"
 global vfdFreq = 0
 global vfdActualRPM = 0
 
+; --- Drive Configuration ---
+; Z-Axis: 1x 1HCL at CAN address 44
+M569 P44.0 S1                      ; Z drive goes forward
+M584 Z44.0                         ; Map Z axis to drive 44.0
+M350 Z16 I0                        ; Configure microstepping without interpolation
+M92 Z685.712                       ; Set steps per mm
+M566 Z120                          ; Set maximum instantaneous speed changes (mm/min)
+M203 Z2400                         ; Set maximum speeds (mm/min)
+M201 Z250                          ; Set accelerations (mm/s^2)
+M906 Z2000                         ; Set motor currents (mA)
+
+; --- Axis Limits ---
+M208 Z0 S1                         ; Set axis minima
+M208 Z140 S0                       ; Set axis maxima
+
+; --- Endstops ---
+; Active high endstop for Z at high end (homes upward)
+M574 Z2 S1 P"^44.io0.in"           ; Configure active-high endstop for high end on Z via 44.io0.in with pullup (^)
+
 ; Define Tool 0
 M563 P0 S"G-Penny" R0
 G10 P0 R6000 S0
