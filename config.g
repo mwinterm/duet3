@@ -5,10 +5,8 @@ M550 P"MyCNC"               ; Machine name
 M552 S1                     ; Enable Ethernet (DHCP)
 M586 P0 S1                  ; Enable HTTP (Web Interface)
 
-; PanelDue (Connected to IO_0)
-; WAS: M575 P1... (Wrong, P1 is RS485)
-; NOW: M575 P0... (Correct, P0 is IO_0)
-M575 P0 S1 B57600           
+; PanelDue (Connected to IO_0, uses P1 on 6XD)
+M575 P1 S1 B57600           
 
 ; --- Emergency Stop Setup ---
 ; NC Switch on io2.in. ^ enables pull-up.
