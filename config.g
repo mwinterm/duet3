@@ -33,6 +33,16 @@ global vfdFreq = 0
 global vfdActualRPM = 0
 
 ; --- Drive Configuration ---
+; X-Axis: 1x 1HCL at CAN address 41
+M569 P41.0 S1                      ; X drive goes forward
+M584 X41.0                         ; Map X axis to drive 41.0
+M350 X16 I1                        ; Configure microstepping with interpolation
+M92 X53.333                        ; Set steps per mm
+M566 X9000                         ; Set maximum instantaneous speed changes (mm/min)
+M203 X18000                        ; Set maximum speeds (mm/min)
+M201 X1000                         ; Set accelerations (mm/s^2)
+M906 X3000 I30                     ; Set motor currents (mA), idle 30%
+
 ; Z-Axis: 1x 1HCL at CAN address 44
 M569 P44.0 S1                      ; Z drive goes forward
 M584 Z44.0                         ; Map Z axis to drive 44.0
@@ -41,15 +51,17 @@ M92 Z685.712                       ; Set steps per mm
 M566 Z120                          ; Set maximum instantaneous speed changes (mm/min)
 M203 Z2400                         ; Set maximum speeds (mm/min)
 M201 Z250                          ; Set accelerations (mm/s^2)
-M906 Z2000                         ; Set motor currents (mA)
+M906 Z2000 I30                     ; Set motor currents (mA), idle 30%
 
 ; --- Axis Limits ---
-M208 Z0 S1                         ; Set axis minima
-M208 Z140 S0                       ; Set axis maxima
+M208 X0 Z0 S1                      ; Set axis minima
+M208 X610 Z140 S0                  ; Set axis maxima
 
 ; --- Endstops ---
-; Active high endstop for Z at high end (homes upward)
-M574 Z2 S1 P"^44.io0.in"           ; Configure active-high endstop for high end on Z via 44.io0.in with pullup (^)
+M574 X1 S1 P"^41.io0.in"           ; X endstop at low end, active high, on 41.io0.in with pullup
+M574 Z2 S1 P"^44.io0.in"           ; Z endstop at high end, active high, on 44.io0.in with pullup
+
+M84 S30                             ; Set idle timeout (seconds)
 
 ; Define Tool 0
 M563 P0 S"G-Penny" R0
