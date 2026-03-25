@@ -37,11 +37,30 @@ global vfdActualRPM = 0
 M569 P41.0 S1                      ; X drive goes forward
 M584 X41.0                         ; Map X axis to drive 41.0
 M350 X16 I1                        ; Configure microstepping with interpolation
-M92 X53.333                        ; Set steps per mm
+M92 X53.4238                        ; Set steps per mm
 M566 X9000                         ; Set maximum instantaneous speed changes (mm/min)
 M203 X18000                        ; Set maximum speeds (mm/min)
 M201 X1000                         ; Set accelerations (mm/s^2)
 M906 X3000 I30                     ; Set motor currents (mA), idle 30%
+M917 X0                            ; Zero holding current (closed-loop holds position actively)
+
+; X-axis Linear Composite encoder (T1):
+;   - Duet3D Magnetic Encoder on SPI port: handles motor commutation (fast loop)
+;   - Linear scale on Q_SE_IN (SE jumper fitted, 5µm): handles final positioning (slow loop)
+; C = counts per motor rev for linear scale: 200 counts/mm × 60mm/rev = 12000
+M569.1 P41.0 T1 C3000 S200 R30 I0 D0  ; T1=Linear Composite, R=proportional, I=integral, D=derivative
+M569 P41.0 D4                      ; Enable full closed-loop mode
+
+; Y-Axis: 2x 1HCL at CAN addresses 42 and 43 in tandem (open-loop)
+M569 P42.0 S0                      ; Y1 drive goes backwards
+M569 P43.0 S1                      ; Y2 drive goes forward
+M584 Y42.0:43.0                    ; Map Y axis to drives 42.0 and 43.0
+M350 Y16 I1                        ; Configure microstepping with interpolation
+M92 Y53.4238                       ; Set steps per mm
+M566 Y9000                         ; Set maximum instantaneous speed changes (mm/min)
+M203 Y18000                        ; Set maximum speeds (mm/min)
+M201 Y1000                         ; Set accelerations (mm/s^2)
+M906 Y3000 I30                     ; Set motor currents (mA), idle 30%
 
 ; Z-Axis: 1x 1HCL at CAN address 44
 M569 P44.0 S1                      ; Z drive goes forward
@@ -54,11 +73,12 @@ M201 Z250                          ; Set accelerations (mm/s^2)
 M906 Z2000 I30                     ; Set motor currents (mA), idle 30%
 
 ; --- Axis Limits ---
-M208 X0 Z0 S1                      ; Set axis minima
-M208 X610 Z140 S0                  ; Set axis maxima
+M208 X0 Y0 Z0 S1                      ; Set axis minima
+M208 X610 Y610 Z140 S0                  ; Set axis maxima
 
 ; --- Endstops ---
-M574 X1 S1 P"^41.io0.in"           ; X endstop at low end, active high, on 41.io0.in with pullup
+M574 X1 S1 P"^41.io0.in"           ; X endstop (NC) at low end, active high, on 41.io0.in with pullup
+M574 Y1 S1 P"^42.io0.in+^43.io0.in" ; Y endstops (NC) at low end, active high, on 42 and 43 io0.in with pullup
 M574 Z2 S1 P"^44.io0.in"           ; Z endstop at high end, active high, on 44.io0.in with pullup
 
 M84 S30                             ; Set idle timeout (seconds)
