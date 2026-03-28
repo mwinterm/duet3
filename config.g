@@ -61,6 +61,11 @@ M566 Y9000                         ; Set maximum instantaneous speed changes (mm
 M203 Y18000                        ; Set maximum speeds (mm/min)
 M201 Y1000                         ; Set accelerations (mm/s^2)
 M906 Y3000 I30                     ; Set motor currents (mA), idle 30%
+M917 Y0                            ; Zero holding current
+
+; Y-axis Linear encoders (Testing Only - Open Loop)
+M569.1 P42.0 T2 C3000                 ; Configure Y1 encoder (T2 = Quadrature)
+M569.1 P43.0 T2 C3000                 ; Configure Y2 encoder (T2 = Quadrature)
 
 ; Z-Axis: 1x 1HCL at CAN address 44
 M569 P44.0 S1                      ; Z drive goes forward
@@ -74,12 +79,16 @@ M906 Z2000 I30                     ; Set motor currents (mA), idle 30%
 
 ; --- Axis Limits ---
 M208 X0 Y0 Z0 S1                      ; Set axis minima
-M208 X610 Y610 Z140 S0                  ; Set axis maxima
+M208 X610 Y1925 Z140 S0               ; Set axis maxima
 
 ; --- Endstops ---
 M574 X1 S1 P"^41.io0.in"           ; X endstop (NC) at low end, active high, on 41.io0.in with pullup
 M574 Y1 S1 P"^42.io0.in+^43.io0.in" ; Y endstops (NC) at low end, active high, on 42 and 43 io0.in with pullup
 M574 Z2 S1 P"^44.io0.in"           ; Z endstop at high end, active high, on 44.io0.in with pullup
+
+; --- Z-Probe / Tool Probe ---
+M558 P8 C"^io3.in" H5 F120 T3000   ; P8=switch, ^ enables pull-up on io3.in for NO probe
+G31 P500 X0 Y0 Z0                  ; Set Z probe trigger value, offset and trigger height
 
 M84 S30                             ; Set idle timeout (seconds)
 
