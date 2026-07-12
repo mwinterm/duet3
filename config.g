@@ -33,8 +33,11 @@ global vfdFreq = 0
 global vfdActualRPM = 0
 
 ; --- Drive Configuration ---
-; X-Axis: 1x 1HCL at CAN address 41
-M569 P41.0 S1                      ; X drive goes forward
+; All drives run in OPEN-LOOP stepper mode (D2 = spreadCycle).
+; No feedback is used from the rotary (magnetic) or linear encoders.
+
+; X-Axis: 1x 1HCL at CAN address 41 (open-loop)
+M569 P41.0 S1 D2                   ; X drive forward, D2 = open-loop spreadCycle
 M584 X41.0                         ; Map X axis to drive 41.0
 M350 X16 I1                        ; Configure microstepping with interpolation
 M92 X53.4238                        ; Set steps per mm
@@ -42,18 +45,10 @@ M566 X9000                         ; Set maximum instantaneous speed changes (mm
 M203 X18000                        ; Set maximum speeds (mm/min)
 M201 X1000                         ; Set accelerations (mm/s^2)
 M906 X3000 I30                     ; Set motor currents (mA), idle 30%
-M917 X0                            ; Zero holding current (closed-loop holds position actively)
-
-; X-axis Linear Composite encoder (T1):
-;   - Duet3D Magnetic Encoder on SPI port: handles motor commutation (fast loop)
-;   - Linear scale on Q_SE_IN (SE jumper fitted, 5µm): handles final positioning (slow loop)
-; C = counts per motor rev for linear scale: 200 counts/mm × 60mm/rev = 12000
-M569.1 P41.0 T1 C3000 S200 R30 I0 D0  ; T1=Linear Composite, R=proportional, I=integral, D=derivative
-M569 P41.0 D4                      ; Enable full closed-loop mode
 
 ; Y-Axis: 2x 1HCL at CAN addresses 42 and 43 in tandem (open-loop)
-M569 P42.0 S0                      ; Y1 drive goes backwards
-M569 P43.0 S1                      ; Y2 drive goes forward
+M569 P42.0 S0 D2                   ; Y1 drive backwards, D2 = open-loop spreadCycle
+M569 P43.0 S1 D2                   ; Y2 drive forward, D2 = open-loop spreadCycle
 M584 Y42.0:43.0                    ; Map Y axis to drives 42.0 and 43.0
 M350 Y16 I1                        ; Configure microstepping with interpolation
 M92 Y53.4238                       ; Set steps per mm
@@ -61,14 +56,9 @@ M566 Y9000                         ; Set maximum instantaneous speed changes (mm
 M203 Y18000                        ; Set maximum speeds (mm/min)
 M201 Y1000                         ; Set accelerations (mm/s^2)
 M906 Y3000 I30                     ; Set motor currents (mA), idle 30%
-M917 Y0                            ; Zero holding current
 
-; Y-axis Linear encoders (Testing Only - Open Loop)
-M569.1 P42.0 T2 C3000                 ; Configure Y1 encoder (T2 = Quadrature)
-M569.1 P43.0 T2 C3000                 ; Configure Y2 encoder (T2 = Quadrature)
-
-; Z-Axis: 1x 1HCL at CAN address 44
-M569 P44.0 S1                      ; Z drive goes forward
+; Z-Axis: 1x 1HCL at CAN address 44 (open-loop)
+M569 P44.0 S1 D2                   ; Z drive forward, D2 = open-loop spreadCycle
 M584 Z44.0                         ; Map Z axis to drive 44.0
 M350 Z16 I0                        ; Configure microstepping without interpolation
 M92 Z685.712                       ; Set steps per mm
