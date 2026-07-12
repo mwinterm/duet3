@@ -36,6 +36,8 @@ global vfdActualRPM = 0
 ; All drives run in OPEN-LOOP stepper mode (D2 = spreadCycle).
 ; No feedback is used from the rotary (magnetic) or linear encoders.
 
+G4 S2                              ; Wait for CAN expansion boards (41-44) to start up before configuring them
+
 ; X-Axis: 1x 1HCL at CAN address 41 (open-loop)
 M569 P41.0 S1 D2                   ; X drive forward, D2 = open-loop spreadCycle
 M584 X41.0                         ; Map X axis to drive 41.0
@@ -44,7 +46,7 @@ M92 X53.4238                        ; Set steps per mm
 M566 X9000                         ; Set maximum instantaneous speed changes (mm/min)
 M203 X18000                        ; Set maximum speeds (mm/min)
 M201 X1000                         ; Set accelerations (mm/s^2)
-M906 X3000 I30                     ; Set motor currents (mA), idle 30%
+M906 X3000 I30 T30                 ; Set motor currents (mA), idle 30%, idle timeout 30s
 
 ; Y-Axis: 2x 1HCL at CAN addresses 42 and 43 in tandem (open-loop)
 M569 P42.0 S0 D2                   ; Y1 drive backwards, D2 = open-loop spreadCycle
@@ -55,7 +57,7 @@ M92 Y53.4238                       ; Set steps per mm
 M566 Y9000                         ; Set maximum instantaneous speed changes (mm/min)
 M203 Y18000                        ; Set maximum speeds (mm/min)
 M201 Y1000                         ; Set accelerations (mm/s^2)
-M906 Y3000 I30                     ; Set motor currents (mA), idle 30%
+M906 Y3000 I30 T30                 ; Set motor currents (mA), idle 30%, idle timeout 30s
 
 ; Z-Axis: 1x 1HCL at CAN address 44 (open-loop)
 M569 P44.0 S1 D2                   ; Z drive forward, D2 = open-loop spreadCycle
@@ -65,7 +67,7 @@ M92 Z685.712                       ; Set steps per mm
 M566 Z120                          ; Set maximum instantaneous speed changes (mm/min)
 M203 Z2400                         ; Set maximum speeds (mm/min)
 M201 Z250                          ; Set accelerations (mm/s^2)
-M906 Z2000 I30                     ; Set motor currents (mA), idle 30%
+M906 Z2000 I30 T30                 ; Set motor currents (mA), idle 30%, idle timeout 30s
 
 ; --- Axis Limits ---
 M208 X0 Y0 Z0 S1                      ; Set axis minima
@@ -80,7 +82,7 @@ M574 Z2 S1 P"^44.io0.in"           ; Z endstop at high end, active high, on 44.i
 M558 P8 C"^io3.in" H5 F120 T3000   ; P8=switch, ^ enables pull-up on io3.in for NO probe
 G31 P500 X0 Y0 Z0                  ; Set Z probe trigger value, offset and trigger height
 
-M84 S30                             ; Set idle timeout (seconds)
+; Idle timeout is now set via the M906 T parameter above (M84 S is deprecated in RRF 3.6)
 
 ; Define Tool 0
 M563 P0 S"G-Penny" R0
