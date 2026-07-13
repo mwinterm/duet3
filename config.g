@@ -33,20 +33,38 @@ global vfdFreq = 0
 global vfdActualRPM = 0
 
 ; --- Drive Configuration ---
-; All drives run in OPEN-LOOP stepper mode (D2 = spreadCycle).
-; No feedback is used from the rotary (magnetic) or linear encoders.
+; X runs in ROTARY-ONLY CLOSED-LOOP (T3, motor-shaft magnetic encoder);
+; Y and Z remain OPEN-LOOP for now.
 
 G4 S2                              ; Wait for CAN expansion boards (41-44) to start up before configuring them
 
-; X-Axis: 1x 1HCL at CAN address 41 (open-loop)
-M569 P41.0 S1 D2                   ; X drive forward, D2 = open-loop spreadCycle
+; X-Axis: 1x 1HCL at CAN address 41 (rotary-only closed-loop, T3)
+;   - Duet3D magnetic shaft encoder (SPI header): motor-shaft position + commutation.
+;   - The linear scale on Q_SE_IN is DELIBERATELY IGNORED in this mode.
+; IMPORTANT: feedback is taken from the MOTOR SHAFT only, so this loop holds the
+; motor position accurately but does NOT compensate belt stretch / friction-drive
+; slip - the carriage can still drift while the shaft reads "on target".
+; This branch exists to compare rotary-only (single loop) against the composite
+; magnetic+linear setup on the double_loop branch.
+; The drive BOOTS in open-loop (D2). Closed-loop (D4) is enabled in homex.g after
+; homing, once the per-boot polarity/zeroing move (M569.6 V1) has been run.
+M569 P41.0 S1 D2                   ; X drive forward, open-loop spreadCycle at boot
 M584 X41.0                         ; Map X axis to drive 41.0
 M350 X16 I1                        ; Configure microstepping with interpolation
-M92 X53.4238                        ; Set steps per mm
+M92 X53.4238                       ; Set steps per mm (200 full steps * 16 microsteps / 60mm per rev)
 M566 X9000                         ; Set maximum instantaneous speed changes (mm/min)
 M203 X18000                        ; Set maximum speeds (mm/min)
 M201 X1000                         ; Set accelerations (mm/s^2)
 M906 X3000 I30 T30                 ; Set motor currents (mA), idle 30%, idle timeout 30s
+
+; --- X rotary encoder + closed-loop PID (1HCL @ 41) ---
+; T3 = Duet3D magnetic shaft encoder (motor shaft). No C parameter is needed - the
+; magnetic encoder resolution is fixed/known. S = motor full steps per rev (200 = 1.8deg NEMA).
+; With rotary-only feedback the shaft tracks the target tightly, so following error is
+; small: R is the main term, a small I removes steady offset, D = 0.
+; These R/I/D are STARTING values ONLY - retune empirically.
+; E = error thresholds in FULL MOTOR STEPS (warning:fault); ~0.3mm per full step here.
+M569.1 P41.0 T3 S200 R30 I1 D0 E5:10
 
 ; Y-Axis: 2x 1HCL at CAN addresses 42 and 43 in tandem (open-loop)
 M569 P42.0 S0 D2                   ; Y1 drive backwards, D2 = open-loop spreadCycle
