@@ -7,4 +7,4 @@ G1 H1 Z150 F600             ; Move Z up (towards endstop) at 600mm/min, stop at 
 G1 Z-5 F600                 ; Back off 5mm
 G1 H1 Z10 F120              ; Move slowly back to endstop for accuracy
 G90                          ; Absolute positioning
-G92 Z0                       ; Set current position as Z=0
+G92 Z140                     ; Endstop is at the HIGH end: set current position to axis maximum
