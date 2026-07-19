@@ -1,4 +1,4 @@
-; setoffset.g - Measure and set the length offset of the current tool
+; set_tool_lenght.g - Measure and set the length offset of the current tool
 ;
 ; Tool length setter: NC switch on io3.in (Duet 3 6XD), configured as probe K0 in config.g.
 ; The setter sits at machine X30 Y29 and its trigger surface is at machine Z = var.setterZ.
@@ -10,7 +10,7 @@
 ; Absolute method: the offset is set so the tool tip reads var.setterZ at the setter for
 ; every tool, keeping the workpiece Z-zero consistent across tool changes.
 ;
-; Usage: select the tool first (e.g. T0), then run:  M98 P"setoffset.g"
+; Usage: select the tool first (e.g. T0), then run:  M98 P"set_tool_lenght.g"
 
 ; --- Setter location / trigger height (machine coordinates) ---
 var setterX = 30
@@ -19,9 +19,9 @@ var setterZ = 14.7          ; measured machine Z at which the setter triggers
 
 ; --- Safety checks ---
 if state.currentTool < 0
-    abort "setoffset.g: no tool selected. Select a tool (e.g. T0) before running the tool setter."
+    abort "set_tool_lenght.g: no tool selected. Select a tool (e.g. T0) before running the tool setter."
 if !move.axes[0].homed || !move.axes[1].homed || !move.axes[2].homed
-    abort "setoffset.g: home all axes (G28) before running the tool setter."
+    abort "set_tool_lenght.g: home all axes (G28) before running the tool setter."
 
 M400                             ; ensure any previous motion has finished
 
