@@ -43,6 +43,9 @@ var trigZ = move.axes[2].machinePosition
 var newOffset = { var.setterZ - var.trigZ }
 G10 P{state.currentTool} Z{var.newOffset}
 
+; Persist tool offsets (P10) and probe trigger heights (P31) to config-override.g
+M500 P10:31
+
 ; Measured tool length as a positive value (longer tool -> larger number)
 var toolLength = { -var.newOffset }
 

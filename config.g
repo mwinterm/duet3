@@ -27,6 +27,10 @@ M575 P2 B9600 S7            ; P2=IO1 (RS485), B9600=baud, S7=Modbus RTU
 ; L0:24000 = RPM range, Q1000 = PWM frequency (not used by Modbus but required)
 M950 R0 C"vfd" L0:24000 Q1000
 
+; Select CNC machine mode: G0 becomes a true rapid move (uses max feed rate, capped by M203)
+; independent of the feed rate set by the last G1, instead of sharing the modal feed rate.
+M453
+
 ; Global variables for daemon.g VFD state tracking
 global vfdState = "stopped"
 global vfdFreq = 0
@@ -86,9 +90,22 @@ M574 Z2 S1 P"^44.io0.in"           ; Z endstop at high end, active high, on 44.i
 M558 K0 P8 C"^!io3.in" H5 F600:120 T3000 A3 S0.02  ; unfiltered switch probe, fast-then-slow, average up to 3
 G31 K0 P500 X0 Y0 Z0                               ; trigger value; Z trigger height is handled in set_tool_lenght.g
 
+; --- Z Touch Probe ---
+; NC (normally-closed) touch probe on the Z-axis 1HCL (CAN address 44), IO_1 connector.
+; IMPORTANT: the switch signal must be wired to the IO_1 *input* pin (44.io1.in). The IO_1 OUT
+; pin (io1.out) is a PWM output only and cannot read a switch.
+; NC switch with pull-up: idle = closed = reads 0 (not triggered), pressed = open = reads 1
+; (triggered). No '!' inversion is needed for a NC switch; a broken wire fails safe (triggered).
+M558 K1 P8 C"^44.io1.in" H5 F600:120 T3000        ; probe 1 = Z touch probe, unfiltered switch, fast-then-slow
+G31 K1 P500 X0 Y0 Z0                              ; trigger value and offsets (set Z to the probe tip thickness if needed)
+
 ; Idle timeout is now set via the M906 T parameter above (M84 S is deprecated in RRF 3.6)
 
 ; Define Tool 0
 M563 P0 S"G-Penny" R0
 G10 P0 R6000 S0
 T0
+
+; Load persisted tool offsets (G10) and probe trigger heights (G31) saved by M500.
+; Must be last so it overrides the defaults set above.
+M501
