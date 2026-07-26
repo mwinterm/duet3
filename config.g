@@ -101,10 +101,10 @@ G31 K1 P500 X0 Y0 Z0                              ; trigger value and offsets (s
 
 ; Idle timeout is now set via the M906 T parameter above (M84 S is deprecated in RRF 3.6)
 
-; Define Tool 0
-M563 P0 S"G-Penny" R0
-G10 P0 R6000 S0
-T0
+; Define Tool 1 (NC convention: tools start at T1)
+M563 P1 S"G-Penny" R0
+G10 P1 R6000 S0
+T1
 
 ; Load persisted tool offsets (G10) and probe trigger heights (G31) saved by M500.
 ; Must be last so it overrides the defaults set above.

@@ -10,16 +10,17 @@
 ; Absolute method: the offset is set so the tool tip reads var.setterZ at the setter for
 ; every tool, keeping the workpiece Z-zero consistent across tool changes.
 ;
-; Usage: select the tool first (e.g. T0), then run:  M98 P"set_tool_lenght.g"
+; Usage: select the tool first (e.g. T1), then run:  M98 P"set_tool_lenght.g"
 
 ; --- Setter location / trigger height (machine coordinates) ---
 var setterX = 30
 var setterY = 29
-var setterZ = 14.7          ; measured machine Z at which the setter triggers
+var setterZ = -28.147       ; setter reference: machine Z at which a zero-length tool would trigger
+                            ; (calibrated so a 39.22 mm tool triggering at machine Z 11.073 reports 39.22)
 
 ; --- Safety checks ---
 if state.currentTool < 0
-    abort "set_tool_lenght.g: no tool selected. Select a tool (e.g. T0) before running the tool setter."
+    abort "set_tool_lenght.g: no tool selected. Select a tool (e.g. T1) before running the tool setter."
 if !move.axes[0].homed || !move.axes[1].homed || !move.axes[2].homed
     abort "set_tool_lenght.g: home all axes (G28) before running the tool setter."
 
