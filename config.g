@@ -83,12 +83,12 @@ M574 Y1 S1 P"^42.io0.in+^43.io0.in" ; Y endstops (NC) at low end, active high, o
 M574 Z2 S1 P"^44.io0.in"           ; Z endstop at high end, active high, on 44.io0.in with pullup
 
 ; --- Tool Length Setter ---
-; NO (normally-open) switch on io3.in, used by set_tool_lenght.g to measure tool length.
+; NO (normally-open) switch on io3.in, used by ToolProbe.g to measure tool length.
 ; NO switch with pull-up: idle = open = reads 1, pressed = closed = reads 0. The '!' inverts the
 ; input so the probe reads triggered when the switch closes (low). Note: a NO switch does NOT
 ; fail safe - a broken/disconnected wire reads as idle (not triggered).
 M558 K0 P8 C"^!io3.in" H5 F600:120 T3000 A3 S0.02  ; unfiltered switch probe, fast-then-slow, average up to 3
-G31 K0 P500 X0 Y0 Z0                               ; trigger value; Z trigger height is handled in set_tool_lenght.g
+G31 K0 P500 X0 Y0 Z0                               ; trigger value; Z trigger height is handled in ToolProbe.g
 
 ; --- Z Touch Probe ---
 ; NC (normally-closed) touch probe on the Z-axis 1HCL (CAN address 44), IO_1 connector.
@@ -101,9 +101,10 @@ G31 K1 P500 X0 Y0 Z0                              ; trigger value and offsets (s
 
 ; Idle timeout is now set via the M906 T parameter above (M84 S is deprecated in RRF 3.6)
 
-; Define Tool 1 (NC convention: tools start at T1)
-M563 P1 S"G-Penny" R0
-G10 P1 R6000 S0
+; Define tools T1..T49 (NC convention: tools start at T1).
+; Firmware limit: MaxTools = 50, so valid tool numbers are 0..49.
+while iterations < 49
+    M563 P{iterations + 1} S{"T" ^ (iterations + 1)} R0
 T1
 
 ; Load persisted tool offsets (G10) and probe trigger heights (G31) saved by M500.
