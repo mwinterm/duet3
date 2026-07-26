@@ -75,8 +75,6 @@ var toolLength = { -var.newOffset }
 G53 G0 Z{move.axes[2].max}
 
 if state.currentTool == 0
-    echo "Touch probe T0 calibrated: length", var.toolLength, "mm (Z offset", var.newOffset, ", triggered at machine Z", var.trigZ, ", correction", var.probeCorrection, ")"
-    M291 P{"Touch probe T0 calibrated. Probe length = " ^ var.toolLength ^ " mm"} R"Probe Calibration" S1
+    M291 P{"Touch probe T0 calibrated. Probe length = " ^ var.toolLength ^ " mm (triggered at machine Z " ^ var.trigZ ^ ", correction " ^ var.probeCorrection ^ ")"} R"Probe Calibration" S1
 else
-    echo "Tool", state.currentTool, "length", var.toolLength, "mm (Z offset", var.newOffset, ", triggered at machine Z", var.trigZ, ")"
-    M291 P{"Tool " ^ state.currentTool ^ " measured. Tool length = " ^ var.toolLength ^ " mm"} R"Tool Setter" S1
+    M291 P{"Tool " ^ state.currentTool ^ " measured. Tool length = " ^ var.toolLength ^ " mm (triggered at machine Z " ^ var.trigZ ^ ")"} R"Tool Setter" S1
