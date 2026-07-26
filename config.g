@@ -44,9 +44,10 @@ G4 S2                              ; Wait for CAN expansion boards (41-44) to st
 
 ; X-Axis: 1x 1HCL at CAN address 41 (open-loop)
 M569 P41.0 S1 D2                   ; X drive forward, D2 = open-loop spreadCycle
+M569.1 P41.0 T2 C3000 S200         ; Linear scale on Q_SE_IN (5 um = 200 counts/mm): counting only, does NOT enable closed loop
 M584 X41.0                         ; Map X axis to drive 41.0
 M350 X16 I1                        ; Configure microstepping with interpolation
-M92 X53.4238                        ; Set steps per mm
+M92 X53.30938                        ; Set steps per mm
 M566 X9000                         ; Set maximum instantaneous speed changes (mm/min)
 M203 X18000                        ; Set maximum speeds (mm/min)
 M201 X1000                         ; Set accelerations (mm/s^2)
@@ -55,9 +56,11 @@ M906 X3000 I30 T30                 ; Set motor currents (mA), idle 30%, idle tim
 ; Y-Axis: 2x 1HCL at CAN addresses 42 and 43 in tandem (open-loop)
 M569 P42.0 S0 D2                   ; Y1 drive backwards, D2 = open-loop spreadCycle
 M569 P43.0 S1 D2                   ; Y2 drive forward, D2 = open-loop spreadCycle
+M569.1 P42.0 T2 C3000 S200         ; Y1 linear scale on Q_SE_IN: counting only, does NOT enable closed loop
+M569.1 P43.0 T2 C3000 S200         ; Y2 linear scale on Q_SE_IN: counting only, does NOT enable closed loop
 M584 Y42.0:43.0                    ; Map Y axis to drives 42.0 and 43.0
 M350 Y16 I1                        ; Configure microstepping with interpolation
-M92 Y53.4238                       ; Set steps per mm
+M92 Y53.34282                      ; Set steps per mm
 M566 Y9000                         ; Set maximum instantaneous speed changes (mm/min)
 M203 Y18000                        ; Set maximum speeds (mm/min)
 M201 Y1000                         ; Set accelerations (mm/s^2)
