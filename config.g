@@ -97,12 +97,14 @@ G31 K0 P500 X0 Y0 Z0                               ; trigger value; Z trigger he
 ; NC switch with pull-up: idle = closed = reads 0 (not triggered), pressed = open = reads 1
 ; (triggered). No '!' inversion is needed for a NC switch; a broken wire fails safe (triggered).
 M558 K1 P8 C"^44.io1.in" H5 F600:120 T3000        ; probe 1 = Z touch probe, unfiltered switch, fast-then-slow
-G31 K1 P500 X0 Y0 Z0                              ; trigger value and offsets (set Z to the probe tip thickness if needed)
+G31 K1 P500 X0 Y0 Z0                              ; Z stays 0: the probe's length is handled as tool T0's offset (ToolProbe.g)
+global probeBallDia = 4                           ; touch probe stylus ball diameter (mm), used by the ProbeX/Y macros
 
 ; Idle timeout is now set via the M906 T parameter above (M84 S is deprecated in RRF 3.6)
 
-; Define tools T1..T49 (NC convention: tools start at T1).
+; Define tools: T0 = touch probe, T1..T49 = cutting tools (NC convention: tools start at T1).
 ; Firmware limit: MaxTools = 50, so valid tool numbers are 0..49.
+M563 P0 S"Touch Probe" R0        ; T0 = spindle touch probe; length calibrated by ToolProbe.g (K1 path)
 while iterations < 49
     M563 P{iterations + 1} S{"T" ^ (iterations + 1)} R0
 T1
