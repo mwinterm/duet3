@@ -32,7 +32,7 @@ M291 P"Enter the signed 'position' value from the M122 B41 report above (at X mi
 var count1 = input
 
 ; --- Position 2: X max ---
-G53 G1 X{var.endX} F3000
+G53 G0 X{var.endX} F3000
 M400
 M122 B41
 M291 P"Enter the signed 'position' value from the M122 B41 report above (at X max)" R"CalibrateX 2/2" S5 L-2000000000 H2000000000

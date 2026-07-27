@@ -39,7 +39,7 @@ M291 P"Y2 (board 43): enter the signed 'position' value from the M122 B43 report
 var count1b = input
 
 ; --- Position 2: Y max ---
-G53 G1 Y{var.endY} F3000
+G53 G0 Y{var.endY} F3000
 M400
 M122 B42
 M291 P"Y1 (board 42): enter the signed 'position' value from the M122 B42 report above (at Y max)" R"CalibrateY 3/4" S5 L-2000000000 H2000000000
