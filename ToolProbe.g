@@ -30,7 +30,7 @@ var setterY = 29
 ; --- Rigid reference surface (touch probe T0, probe K1) ---
 var probeX = 30
 var probeY = 45
-var probeCorrection = 0.0   ; small residual correction (mm); +d if cuts are d too deep
+var probeCorrection = -0.402 ; small residual correction (mm); +d if cuts are d too deep
 
 ; --- Safety checks ---
 if state.currentTool < 0
