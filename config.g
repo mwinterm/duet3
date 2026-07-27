@@ -37,8 +37,8 @@ global vfdFreq = 0
 global vfdActualRPM = 0
 
 ; --- Drive Configuration ---
-; X runs in ROTARY-ONLY CLOSED-LOOP (T3, motor-shaft magnetic encoder);
-; Y and Z remain OPEN-LOOP for now.
+; X and Y run in ROTARY-ONLY CLOSED-LOOP (T3, motor-shaft magnetic encoders);
+; Z remains OPEN-LOOP for now.
 
 G4 S2                              ; Wait for CAN expansion boards (41-44) to start up before configuring them
 
@@ -51,7 +51,8 @@ G4 S2                              ; Wait for CAN expansion boards (41-44) to st
 ; This branch exists to compare rotary-only (single loop) against the composite
 ; magnetic+linear setup on the double_loop branch.
 ; The drive BOOTS in open-loop (D2). Closed-loop (D4) is enabled in homex.g after
-; homing, once the per-boot polarity/zeroing move (M569.6 V1) has been run.
+; homing. The magnetic encoder is ABSOLUTE, so a ONE-TIME M569.6 V2 calibration
+; (saved to 1HCL flash) provides commutation - no per-boot tuning move is needed.
 M569 P41.0 S1 D2                   ; X drive forward, open-loop spreadCycle at boot
 M584 X41.0                         ; Map X axis to drive 41.0
 M350 X16 I1                        ; Configure microstepping with interpolation
@@ -70,11 +71,16 @@ M906 X3000 I30 T30                 ; Set motor currents (mA), idle 30%, idle tim
 ; E = error thresholds in FULL MOTOR STEPS (warning:fault); ~0.3mm per full step here.
 M569.1 P41.0 T3 S200 R30 I1 D0 E5:10
 
-; Y-Axis: 2x 1HCL at CAN addresses 42 and 43 in tandem (open-loop)
-M569 P42.0 S0 D2                   ; Y1 drive backwards, D2 = open-loop spreadCycle
-M569 P43.0 S1 D2                   ; Y2 drive forward, D2 = open-loop spreadCycle
-M569.1 P42.0 T2 C3000 S200         ; Y1 linear scale on Q_SE_IN: counting only, does NOT enable closed loop
-M569.1 P43.0 T2 C3000 S200         ; Y2 linear scale on Q_SE_IN: counting only, does NOT enable closed loop
+; Y-Axis: 2x 1HCL at CAN addresses 42 and 43 in tandem (rotary-only closed-loop, T3)
+;   - Each drive uses its own Duet3D magnetic shaft encoder (SPI header) for the loop.
+;   - The linear scales on Q_SE_IN are DELIBERATELY IGNORED in this mode (as on X).
+;   - Rotary-only: holds each motor shaft on target but does NOT correct belt/friction
+;     slip at the carriage. Both drives BOOT open-loop (D2); closed-loop (D4) is enabled
+;     in homey.g after homing. Absolute encoders: one-time M569.6 V2 (saved to flash), no per-boot tuning.
+M569 P42.0 S0 D2                   ; Y1 drive backwards, open-loop spreadCycle at boot
+M569 P43.0 S1 D2                   ; Y2 drive forward, open-loop spreadCycle at boot
+M569.1 P42.0 T3 S200 R30 I1 D0 E5:10   ; Y1 magnetic shaft encoder; PID starting values, retune empirically
+M569.1 P43.0 T3 S200 R30 I1 D0 E5:10   ; Y2 magnetic shaft encoder; PID starting values, retune empirically
 M584 Y42.0:43.0                    ; Map Y axis to drives 42.0 and 43.0
 M350 Y16 I1                        ; Configure microstepping with interpolation
 M92 Y53.34282                      ; Set steps per mm
