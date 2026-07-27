@@ -5,9 +5,11 @@
 ; Slave address 1 (F163=1), Serial channel P2 (IO1/RS485)
 
 ; Wait for spindle to be configured
-if !exists(spindles)
+; NOTE: in CNC mode (M453), bare ( ) are treated as comments, so exists() calls
+; must be wrapped in { } to be parsed as expressions rather than comments.
+if {!exists(spindles)}
   M99
-if !exists(spindles[0])
+if {!exists(spindles[0])}
   M99
 
 var loopCount = 0
@@ -47,6 +49,6 @@ while true
   if var.loopCount >= 10
     set var.loopCount = 0
     M261.1 P2 A1 F4 R544 B1 V"vfdOutputFreq"
-    if exists(var.vfdOutputFreq) && var.vfdOutputFreq != null
+    if {exists(var.vfdOutputFreq) && var.vfdOutputFreq != null}
       ; Convert 0.1Hz units back to RPM: RPM = freq * 6
       set global.vfdActualRPM = {var.vfdOutputFreq[0] * 6}
